@@ -2,6 +2,8 @@ import sqlite3
 import os
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'presentation_rating.db')
+DEFAULT_ADMIN_NAME = os.environ.get('DEFAULT_ADMIN_NAME', 'admin')
+DEFAULT_ADMIN_PASSWORD = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin123')
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -79,6 +81,13 @@ def init_db():
     c.execute('SELECT COUNT(*) FROM session_status')
     if c.fetchone()[0] == 0:
         c.execute('INSERT INTO session_status (id, is_active) VALUES (1, 0)')
+
+    c.execute('SELECT COUNT(*) FROM users WHERE role = ?', ('admin',))
+    if c.fetchone()[0] == 0:
+        c.execute(
+            'INSERT INTO users (name, password, role) VALUES (?, ?, ?)',
+            (DEFAULT_ADMIN_NAME, DEFAULT_ADMIN_PASSWORD, 'admin')
+        )
 
     conn.commit()
     conn.close()
