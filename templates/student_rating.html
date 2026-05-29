@@ -31,14 +31,12 @@
           <div class="rubric-row rubric-head">
             <div>Criterion</div>
             <div>Key Question</div>
-            <div>Weight</div>
             <div>Score (1-5)</div>
           </div>
           {% for item in rubric_criteria %}
           <div class="rubric-row">
             <div class="rubric-criterion">{{ item.criterion }}</div>
             <div class="rubric-question">{{ item.question }}</div>
-            <div class="rubric-weight">{{ item.weight }}%</div>
             <div class="rubric-score-group" data-field="{{ item.field }}">
               {% for score in range(1, 6) %}
               <label class="rubric-score">
@@ -49,12 +47,6 @@
             </div>
           </div>
           {% endfor %}
-          <div class="rubric-row rubric-total">
-            <div>Total Weighted Score</div>
-            <div></div>
-            <div>100%</div>
-            <div><span id="weightedScore">--</span> / 25</div>
-          </div>
         </div>
 
         <p class="rating-scale">Scale: 1 = Weak · 2 = Below Avg · 3 = Decent · 4 = Strong · 5 = Exceptional</p>
