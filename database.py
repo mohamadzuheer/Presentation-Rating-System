@@ -4,6 +4,7 @@ import os
 DB_PATH = os.path.join(os.path.dirname(__file__), 'presentation_rating.db')
 DEFAULT_ADMIN_NAME = os.environ.get('DEFAULT_ADMIN_NAME', 'admin')
 DEFAULT_ADMIN_PASSWORD = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin123')
+DEFAULT_STUDENT_PASSWORD = os.environ.get('DEFAULT_STUDENT_PASSWORD', 'student123')
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -82,12 +83,24 @@ def init_db():
     if c.fetchone()[0] == 0:
         c.execute('INSERT INTO session_status (id, is_active) VALUES (1, 0)')
 
-    c.execute('SELECT COUNT(*) FROM users WHERE role = ?', ('admin',))
+    c.execute(
+        '''
+        INSERT INTO users (name, password, role)
+        VALUES (?, ?, 'admin')
+        ON CONFLICT(name) DO UPDATE SET
+            password = excluded.password,
+            role = 'admin'
+        ''',
+        (DEFAULT_ADMIN_NAME, DEFAULT_ADMIN_PASSWORD)
+    )
+
+    c.execute('SELECT COUNT(*) FROM users WHERE role = ?', ('student',))
     if c.fetchone()[0] == 0:
-        c.execute(
-            'INSERT INTO users (name, password, role) VALUES (?, ?, ?)',
-            (DEFAULT_ADMIN_NAME, DEFAULT_ADMIN_PASSWORD, 'admin')
-        )
+        for i in range(1, 11):
+            c.execute(
+                'INSERT OR IGNORE INTO users (name, password, role) VALUES (?, ?, ?)',
+                (f'Student {i:03d}', DEFAULT_STUDENT_PASSWORD, 'student')
+            )
 
     conn.commit()
     conn.close()
