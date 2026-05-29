@@ -70,7 +70,7 @@ def student_signup():
         name = request.form.get('name', '').strip()
         password = request.form.get('password', '').strip()
         confirm_password = request.form.get('confirm_password', '').strip()
-        role = request.form.get('role', 'student').strip().lower()
+        role = 'student'
 
         if len(name) < 3:
             flash('Username must be at least 3 characters long.', 'error')
@@ -81,10 +81,6 @@ def student_signup():
         if password != confirm_password:
             flash('Passwords do not match.', 'error')
             return render_template('student_signup.html')
-        if role not in ('student', 'admin'):
-            flash('Please select a valid account type.', 'error')
-            return render_template('student_signup.html')
-
         conn = get_db()
         existing = conn.execute(
             'SELECT id FROM users WHERE LOWER(name) = LOWER(?)',
@@ -107,8 +103,6 @@ def student_signup():
         session['user_name'] = name
         session['role'] = role
         flash('Signup successful. You are logged in now.', 'success')
-        if role == 'admin':
-            return redirect(url_for('admin_dashboard'))
         return redirect(url_for('student_rating'))
 
     return render_template('student_signup.html')
