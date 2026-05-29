@@ -39,10 +39,32 @@ def init_db():
             presenter_id INTEGER NOT NULL,
             rater_id INTEGER NOT NULL,
             rating_score INTEGER NOT NULL,
+            problem_clarity INTEGER,
+            market_potential INTEGER,
+            uniqueness_insight INTEGER,
+            feasibility INTEGER,
+            pitch_delivery INTEGER,
+            work_interest INTEGER,
+            weighted_score REAL,
             submitted_at TEXT,
             UNIQUE(presentation_id, rater_id)
         )
     ''')
+
+    c.execute("PRAGMA table_info(ratings)")
+    rating_columns = {row[1] for row in c.fetchall()}
+    rubric_columns = {
+        'problem_clarity': 'INTEGER',
+        'market_potential': 'INTEGER',
+        'uniqueness_insight': 'INTEGER',
+        'feasibility': 'INTEGER',
+        'pitch_delivery': 'INTEGER',
+        'work_interest': 'INTEGER',
+        'weighted_score': 'REAL'
+    }
+    for column, column_type in rubric_columns.items():
+        if column not in rating_columns:
+            c.execute(f'ALTER TABLE ratings ADD COLUMN {column} {column_type}')
 
     c.execute('''
         CREATE TABLE IF NOT EXISTS session_status (

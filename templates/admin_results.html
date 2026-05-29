@@ -54,8 +54,8 @@
             <th>Rank</th>
             <th>Student Name</th>
             <th>Attempt</th>
-            <th>Total Score</th>
-            <th>Average Score</th>
+            <th>Total Weighted Score</th>
+            <th>Average Weighted Score</th>
             <th>Ratings Received</th>
           </tr>
         </thead>
@@ -66,7 +66,7 @@
             <td><strong>{{ r.name }}</strong></td>
             <td>{{ r.attempt_no }}</td>
             <td>{{ r.total_score }}</td>
-            <td><strong>{{ r.avg_score }} / 10</strong></td>
+            <td><strong>{{ r.avg_score }} / 25</strong></td>
             <td>{{ r.ratings_received }}</td>
           </tr>
           {% endfor %}

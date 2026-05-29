@@ -748,6 +748,10 @@ a {
   overflow: hidden;
 }
 
+.rating-card {
+  width: min(96vw, 1080px);
+}
+
 .rating-card::before,
 .waiting-card::before {
   content: "PRS";
@@ -843,6 +847,116 @@ a {
 
 .rating-selected.chosen {
   color: var(--accent);
+}
+
+.rubric-table {
+  overflow-x: auto;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.rubric-row {
+  display: grid;
+  grid-template-columns: 1.1fr 2fr 0.55fr 1.2fr;
+  min-width: 820px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rubric-row:last-child {
+  border-bottom: 0;
+}
+
+.rubric-row > div {
+  display: flex;
+  align-items: center;
+  padding: 14px 12px;
+}
+
+.rubric-head,
+.rubric-total {
+  background: #477b59;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.rubric-head {
+  text-align: center;
+}
+
+.rubric-head > div {
+  justify-content: center;
+}
+
+.rubric-total {
+  text-transform: uppercase;
+}
+
+.rubric-criterion {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.rubric-question {
+  color: #284f39;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.rubric-weight {
+  justify-content: center;
+  color: #2f7d4a;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.rubric-score-group {
+  justify-content: center;
+  gap: 6px;
+}
+
+.rubric-score input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rubric-score span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #cfd8d2;
+  border-radius: 6px;
+  background: #f0f2f0;
+  color: #234231;
+  font-size: 0.9rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, transform 0.14s ease;
+}
+
+.rubric-score span:hover,
+.rubric-score input:checked + span {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.rubric-total > div {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.rating-scale {
+  margin-bottom: 14px;
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.45;
 }
 
 .waiting-icon {

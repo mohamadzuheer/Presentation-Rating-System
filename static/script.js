@@ -1,34 +1,56 @@
-// Rating button selection logic
-function selectRating(value) {
-  // Update hidden input
-  document.getElementById('ratingScore').value = value;
+const rubricWeights = {
+  problem_clarity: 25,
+  market_potential: 20,
+  uniqueness_insight: 20,
+  feasibility: 15,
+  pitch_delivery: 10,
+  work_interest: 10
+};
 
-  // Highlight selected button
-  document.querySelectorAll('.rating-btn').forEach(btn => {
-    btn.classList.toggle('selected', parseInt(btn.dataset.value) === value);
+function updateRubricScore() {
+  let completed = 0;
+  let weightedTotal = 0;
+
+  Object.entries(rubricWeights).forEach(([field, weight]) => {
+    const selected = document.querySelector(`input[name="${field}"]:checked`);
+    if (selected) {
+      completed += 1;
+      weightedTotal += Number(selected.value) * weight;
+    }
   });
 
-  // Update display text
-  const textEl = document.getElementById('ratingSelectedText');
-  textEl.textContent = `You selected: ${value} / 10`;
-  textEl.classList.add('chosen');
-
-  // Enable submit button
+  const scoreEl = document.getElementById('weightedScore');
   const submitBtn = document.getElementById('submitBtn');
-  if (submitBtn) submitBtn.disabled = false;
+
+  if (scoreEl) {
+    scoreEl.textContent = completed === Object.keys(rubricWeights).length
+      ? (weightedTotal / 100 * 5).toFixed(2)
+      : '--';
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = completed !== Object.keys(rubricWeights).length;
+  }
 }
 
-// Prevent double submission
 document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.rubric-score input').forEach(input => {
+    input.addEventListener('change', updateRubricScore);
+  });
+
   const form = document.getElementById('ratingForm');
   if (form) {
     form.addEventListener('submit', function(e) {
-      const score = document.getElementById('ratingScore').value;
-      if (!score) {
+      const allScored = Object.keys(rubricWeights).every(field => {
+        return document.querySelector(`input[name="${field}"]:checked`);
+      });
+
+      if (!allScored) {
         e.preventDefault();
-        alert('Please select a rating before submitting.');
+        alert('Please score every rubric criterion before submitting.');
         return;
       }
+
       const btn = document.getElementById('submitBtn');
       if (btn) {
         btn.disabled = true;

@@ -4,7 +4,46 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = 'presentation_rating_secret_key_2024'
+app.secret_key = os.environ.get('SECRET_KEY', 'presentation_rating_secret_key_2024')
+
+RUBRIC_CRITERIA = [
+    {
+        'field': 'problem_clarity',
+        'criterion': 'Problem Clarity',
+        'question': 'Is the problem real, specific, and clearly articulated?',
+        'weight': 25
+    },
+    {
+        'field': 'market_potential',
+        'criterion': 'Market Potential',
+        'question': 'Is the market large enough? Is there willingness to pay?',
+        'weight': 20
+    },
+    {
+        'field': 'uniqueness_insight',
+        'criterion': 'Uniqueness / Insight',
+        'question': 'Is there a fresh angle or founder insight? Not a copy.',
+        'weight': 20
+    },
+    {
+        'field': 'feasibility',
+        'criterion': 'Feasibility',
+        'question': 'Can this be built and tested in 6 weeks with this cohort?',
+        'weight': 15
+    },
+    {
+        'field': 'pitch_delivery',
+        'criterion': 'Pitch Delivery',
+        'question': 'Was it clear, concise, and compelling? (60-sec discipline)',
+        'weight': 10
+    },
+    {
+        'field': 'work_interest',
+        'criterion': 'Would I Work on This?',
+        'question': 'Would you personally join this team for 6 weeks?',
+        'weight': 10
+    }
+]
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -331,9 +370,9 @@ def admin_results():
     results = conn.execute('''
         SELECT p.id as presentation_id,
                u.name,
-               SUM(r.rating_score) as total_score,
+               ROUND(SUM(COALESCE(r.weighted_score, r.rating_score)), 2) as total_score,
                COUNT(r.id) as ratings_received,
-               ROUND(CAST(SUM(r.rating_score) AS FLOAT) / NULLIF(COUNT(r.id), 0), 2) as avg_score,
+               ROUND(CAST(SUM(COALESCE(r.weighted_score, r.rating_score)) AS FLOAT) / NULLIF(COUNT(r.id), 0), 2) as avg_score,
                p.started_at,
                p.closed_at,
                (
@@ -436,7 +475,8 @@ def student_rating():
     return render_template('student_rating.html',
                            presenter_name=presenter['name'],
                            presentation_id=pres_id,
-                           user_name=session.get('user_name'))
+                           user_name=session.get('user_name'),
+                           rubric_criteria=RUBRIC_CRITERIA)
 
 @app.route('/submit_rating', methods=['POST'])
 def submit_rating():
@@ -446,16 +486,21 @@ def submit_rating():
         return redirect(url_for('admin_dashboard'))
 
     user_id = session['user_id']
-    rating_score = request.form.get('rating_score')
-
-    # Validate score
+    scores = {}
     try:
-        rating_score = int(rating_score)
-        if not 1 <= rating_score <= 10:
-            raise ValueError
+        for item in RUBRIC_CRITERIA:
+            score = int(request.form.get(item['field'], ''))
+            if not 1 <= score <= 5:
+                raise ValueError
+            scores[item['field']] = score
     except (TypeError, ValueError):
-        flash('Invalid rating. Please select a rating between 1 and 10.', 'error')
+        flash('Invalid rating. Please score every rubric criterion from 1 to 5.', 'error')
         return redirect(url_for('student_rating'))
+
+    weighted_score = round(
+        sum(scores[item['field']] * item['weight'] for item in RUBRIC_CRITERIA) / 100 * 5,
+        2
+    )
 
     conn = get_db()
     status = conn.execute('SELECT * FROM session_status WHERE id = 1').fetchone()
@@ -490,8 +535,36 @@ def submit_rating():
 
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     conn.execute(
-        'INSERT INTO ratings (presentation_id, presenter_id, rater_id, rating_score, submitted_at) VALUES (?, ?, ?, ?, ?)',
-        (pres_id, presenter_id, user_id, rating_score, now)
+        '''
+        INSERT INTO ratings (
+            presentation_id,
+            presenter_id,
+            rater_id,
+            rating_score,
+            problem_clarity,
+            market_potential,
+            uniqueness_insight,
+            feasibility,
+            pitch_delivery,
+            work_interest,
+            weighted_score,
+            submitted_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''',
+        (
+            pres_id,
+            presenter_id,
+            user_id,
+            weighted_score,
+            scores['problem_clarity'],
+            scores['market_potential'],
+            scores['uniqueness_insight'],
+            scores['feasibility'],
+            scores['pitch_delivery'],
+            scores['work_interest'],
+            weighted_score,
+            now
+        )
     )
     conn.commit()
     conn.close()
@@ -512,4 +585,8 @@ def student_waiting():
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
+    app.run(
+        host=os.environ.get('HOST', '0.0.0.0'),
+        port=int(os.environ.get('PORT', 5000)),
+        debug=os.environ.get('FLASK_DEBUG') == '1'
+    )
