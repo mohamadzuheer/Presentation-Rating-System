@@ -114,6 +114,20 @@ a {
   border-color: var(--accent);
 }
 
+.btn-delete {
+  min-height: 36px;
+  padding: 7px 14px;
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+.btn-delete:hover {
+  background: #be123c;
+  border-color: #be123c;
+  color: #ffffff;
+}
+
 .btn-start-disabled,
 .btn-submit:disabled {
   background: #e6e6e6;

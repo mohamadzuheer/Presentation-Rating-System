@@ -34,6 +34,12 @@
     </div>
   </header>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{ cat }} alert-page">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
   <main class="page-main">
     <div class="table-container">
       <div class="table-header">
@@ -47,6 +53,7 @@
             <th>Student ID</th>
             <th>Student Name</th>
             <th>Role</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -56,6 +63,13 @@
             <td>{{ s.id }}</td>
             <td><strong>{{ s.name }}</strong></td>
             <td><span class="badge badge-student">{{ s.role }}</span></td>
+            <td>
+              <form method="POST"
+                    action="{{ url_for('delete_student', student_id=s.id) }}"
+                    onsubmit="return confirm('Delete this student? This will also remove this student\\'s presentations and ratings.')">
+                <button type="submit" class="btn btn-delete">Delete</button>
+              </form>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

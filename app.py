@@ -162,6 +162,50 @@ def manage_students():
     conn.close()
     return render_template('manage_students.html', students=students)
 
+@app.route('/delete_student/<int:student_id>', methods=['POST'])
+def delete_student(student_id):
+    if not require_admin():
+        return redirect(url_for('admin_login'))
+
+    conn = get_db()
+    student = conn.execute(
+        'SELECT id, name FROM users WHERE id = ? AND role = "student"',
+        (student_id,)
+    ).fetchone()
+    if not student:
+        conn.close()
+        flash('Student not found.', 'error')
+        return redirect(url_for('manage_students'))
+
+    status = conn.execute('SELECT * FROM session_status WHERE id = 1').fetchone()
+    if status['is_active'] and status['current_presenter_id'] == student_id:
+        conn.close()
+        flash('Close this student\'s active presentation before deleting.', 'error')
+        return redirect(url_for('manage_students'))
+
+    presentation_ids = [
+        row['id']
+        for row in conn.execute(
+            'SELECT id FROM presentations WHERE presenter_id = ?',
+            (student_id,)
+        ).fetchall()
+    ]
+
+    conn.execute('DELETE FROM ratings WHERE rater_id = ? OR presenter_id = ?', (student_id, student_id))
+    if presentation_ids:
+        placeholders = ','.join('?' for _ in presentation_ids)
+        conn.execute(
+            f'DELETE FROM ratings WHERE presentation_id IN ({placeholders})',
+            presentation_ids
+        )
+    conn.execute('DELETE FROM presentations WHERE presenter_id = ?', (student_id,))
+    conn.execute('DELETE FROM users WHERE id = ? AND role = "student"', (student_id,))
+    conn.commit()
+    conn.close()
+
+    flash(f'Student {student["name"]} deleted successfully.', 'success')
+    return redirect(url_for('manage_students'))
+
 @app.route('/presentation_control')
 def presentation_control():
     if not require_admin():
