@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waiting - PRS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta http-equiv="refresh" content="15">
+</head>
+<body>
+<div class="waiting-page">
+  <header class="rating-header">
+    <div class="rating-header-inner">
+      <span class="rating-user">{{ user_name }}</span>
+      <a href="{{ url_for('logout') }}" class="btn btn-logout btn-sm">Logout</a>
+    </div>
+  </header>
+
+  <main class="waiting-main">
+    <div class="waiting-card">
+      <div class="waiting-icon">WAIT</div>
+      <h2 class="waiting-title">Please Wait</h2>
+      <p class="waiting-message">{{ message }}</p>
+      <a href="{{ url_for('student_rating') }}" class="btn btn-student btn-refresh">Refresh</a>
+      <p class="waiting-auto">Page auto-refreshes every 15 seconds.</p>
+    </div>
+  </main>
+</div>
+</body>
+</html>

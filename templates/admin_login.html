@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login - PRS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <a href="{{ url_for('index') }}" class="back-link">Back</a>
+    <div class="login-icon">A</div>
+    <h2 class="login-title">Admin Login</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    <form method="POST">
+      <div class="form-group">
+        <label for="name">Username</label>
+        <input type="text" id="name" name="name" placeholder="admin" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-admin btn-full">Login as Admin</button>
+    </form>
+    <p class="login-hint">Default: admin / admin123</p>
+    <p class="login-hint">Need an admin account? <a href="{{ url_for('student_signup') }}" class="inline-link">Create one</a></p>
+  </div>
+</div>
+</body>
+</html>

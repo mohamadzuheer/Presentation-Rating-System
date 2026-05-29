@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentation Control - PRS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page-wrap">
+  <aside class="side-nav">
+    <div class="side-brand">
+      <div class="side-logo">PRS</div>
+      <div>
+        <div class="side-title">Presentation<br>Rating System</div>
+        <div class="side-subtitle">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="side-menu">
+      <a href="{{ url_for('admin_dashboard') }}" class="side-link">Dashboard</a>
+      <a href="{{ url_for('manage_students') }}" class="side-link">Students</a>
+      <a href="{{ url_for('presentation_control') }}" class="side-link active">Presentation Control</a>
+      <a href="{{ url_for('admin_results') }}" class="side-link">Results &amp; Rankings</a>
+      <a href="{{ url_for('logout') }}" class="side-link">Logout</a>
+    </nav>
+  </aside>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">Dashboard</a>
+        <h2 class="page-title">Presentation Control</h2>
+      </div>
+      <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{ cat }} alert-page">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <main class="page-main">
+    <div class="status-banner {% if status.is_active %}status-active{% else %}status-idle{% endif %}">
+      {% if status.is_active and current_presenter %}
+        <div class="status-row">
+          <div>
+            <div class="status-label">Currently Presenting</div>
+            <div class="status-name">{{ current_presenter.name }}</div>
+          </div>
+          <div class="status-center">
+            <div class="status-label">Rating Status</div>
+            <div class="status-badge open">OPEN</div>
+          </div>
+          <div>
+            <div class="status-label">Ratings Received</div>
+            <div class="status-count" id="ratingsCount">{{ ratings_received }} / 139</div>
+          </div>
+          <div>
+            <form method="POST" action="{{ url_for('close_presentation') }}" onsubmit="return confirm('Close rating for this presenter?')">
+              <button type="submit" class="btn btn-close-rating">Close Rating</button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <div class="status-idle-text">No active presentation. Select a student below to start rating.</div>
+      {% endif %}
+    </div>
+
+    <div class="table-container">
+      <div class="table-header">
+        <span>Students ({{ students|length }})</span>
+        <input type="text" id="studentSearch" class="search-input" placeholder="Search student...">
+      </div>
+      <table class="data-table" id="studentTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student Name</th>
+            <th>Status</th>
+            <th>Attempts</th>
+            <th>Ratings</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><strong>{{ s.name }}</strong></td>
+            <td>
+              {% if s.pres_status == 'open' %}
+                <span class="badge badge-open">Open</span>
+              {% elif s.pres_status == 'closed' %}
+                <span class="badge badge-closed">Completed</span>
+              {% else %}
+                <span class="badge badge-pending">Not Presented</span>
+              {% endif %}
+            </td>
+            <td>{{ s.presentation_count }}</td>
+            <td>{{ s.ratings_received }}</td>
+            <td>
+              {% if s.pres_status == 'not_presented' or s.pres_status is none or s.pres_status == 'closed' %}
+                {% if status.is_active %}
+                  <button class="btn btn-start-disabled" disabled title="Close current presentation first">
+                    {% if s.pres_status == 'closed' %}Start Again{% else %}Start Rating{% endif %}
+                  </button>
+                {% else %}
+                  <form method="POST" action="{{ url_for('start_presentation', student_id=s.id) }}">
+                    <button type="submit" class="btn btn-start">
+                      {% if s.pres_status == 'closed' %}Start Again{% else %}Start Rating{% endif %}
+                    </button>
+                  </form>
+                {% endif %}
+              {% elif s.pres_status == 'open' %}
+                <span class="active-text">Active</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>
+{% if status.is_active %}
+setInterval(function() {
+  fetch('/api/ratings_count')
+    .then(r => r.json())
+    .then(data => {
+      if (data.is_active) {
+        const el = document.getElementById('ratingsCount');
+        if (el) el.textContent = data.count + ' / 139';
+      }
+    });
+}, 5000);
+{% endif %}
+
+document.getElementById('studentSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#studentTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+</body>
+</html>

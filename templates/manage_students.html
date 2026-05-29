@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Students - PRS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page-wrap">
+  <aside class="side-nav">
+    <div class="side-brand">
+      <div class="side-logo">PRS</div>
+      <div>
+        <div class="side-title">Presentation<br>Rating System</div>
+        <div class="side-subtitle">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="side-menu">
+      <a href="{{ url_for('admin_dashboard') }}" class="side-link">Dashboard</a>
+      <a href="{{ url_for('manage_students') }}" class="side-link active">Students</a>
+      <a href="{{ url_for('presentation_control') }}" class="side-link">Presentation Control</a>
+      <a href="{{ url_for('admin_results') }}" class="side-link">Results &amp; Rankings</a>
+      <a href="{{ url_for('logout') }}" class="side-link">Logout</a>
+    </nav>
+  </aside>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">Dashboard</a>
+        <h2 class="page-title">Manage Students</h2>
+      </div>
+      <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="table-container">
+      <div class="table-header">
+        <span>Total Students: <strong>{{ students|length }}</strong></span>
+        <input type="text" id="studentSearch" class="search-input" placeholder="Search student...">
+      </div>
+      <table class="data-table" id="studentTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ s.id }}</td>
+            <td><strong>{{ s.name }}</strong></td>
+            <td><span class="badge badge-student">{{ s.role }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>
+document.getElementById('studentSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#studentTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+</body>
+</html>

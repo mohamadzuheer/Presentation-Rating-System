@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - PRS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="dashboard-page">
+  <aside class="side-nav">
+    <div class="side-brand">
+      <div class="side-logo">PRS</div>
+      <div>
+        <div class="side-title">Presentation<br>Rating System</div>
+        <div class="side-subtitle">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="side-menu">
+      <a href="{{ url_for('admin_dashboard') }}" class="side-link active">Dashboard</a>
+      <a href="{{ url_for('manage_students') }}" class="side-link">Students</a>
+      <a href="{{ url_for('presentation_control') }}" class="side-link">Presentation Control</a>
+      <a href="{{ url_for('admin_results') }}" class="side-link">Results &amp; Rankings</a>
+      <a href="{{ url_for('logout') }}" class="side-link">Logout</a>
+    </nav>
+  </aside>
+
+  <header class="dash-header">
+    <div class="dash-header-inner">
+      <div>
+        <h1 class="dash-title">Presentation Rating System</h1>
+        <p class="dash-subtitle">Welcome, <strong>{{ user_name }}</strong></p>
+      </div>
+      <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <section class="overview-grid">
+      <div class="overview-card">
+        <span class="overview-label">Total Students</span>
+        <strong class="overview-value">{{ total_students }}</strong>
+        <span class="overview-note">Registered student accounts</span>
+      </div>
+      <div class="overview-card">
+        <span class="overview-label">Completed Presentations</span>
+        <strong class="overview-value">{{ completed_presentations }}</strong>
+        <span class="overview-note">Closed rating sessions</span>
+      </div>
+      <div class="overview-card">
+        <span class="overview-label">Active Presentation</span>
+        <strong class="overview-value">{{ active_presentation }}</strong>
+        <span class="overview-note">Current rating availability</span>
+      </div>
+      <div class="overview-card">
+        <span class="overview-label">Pending Presentations</span>
+        <strong class="overview-value">{{ pending_presentations }}</strong>
+        <span class="overview-note">Students not presented yet</span>
+      </div>
+    </section>
+
+    <section class="quick-actions">
+      <div>
+        <h2 class="section-title">Quick Actions</h2>
+        <p class="section-subtitle">Use these shortcuts for common admin tasks.</p>
+      </div>
+      <div class="quick-action-row">
+        <a href="{{ url_for('manage_students') }}" class="btn btn-filter">Manage student list</a>
+        <a href="{{ url_for('presentation_control') }}" class="btn btn-filter">Start or close rating session</a>
+        <a href="{{ url_for('admin_results') }}" class="btn btn-filter">View ranking results</a>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

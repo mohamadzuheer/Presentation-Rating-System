@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results &amp; Rankings - PRS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page-wrap">
+  <aside class="side-nav">
+    <div class="side-brand">
+      <div class="side-logo">PRS</div>
+      <div>
+        <div class="side-title">Presentation<br>Rating System</div>
+        <div class="side-subtitle">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="side-menu">
+      <a href="{{ url_for('admin_dashboard') }}" class="side-link">Dashboard</a>
+      <a href="{{ url_for('manage_students') }}" class="side-link">Students</a>
+      <a href="{{ url_for('presentation_control') }}" class="side-link">Presentation Control</a>
+      <a href="{{ url_for('admin_results') }}" class="side-link active">Results &amp; Rankings</a>
+      <a href="{{ url_for('logout') }}" class="side-link">Logout</a>
+    </nav>
+  </aside>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">Dashboard</a>
+        <h2 class="page-title">Results &amp; Rankings</h2>
+      </div>
+      <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="filter-bar">
+      <span class="filter-label">Results Filter</span>
+      <a href="?top=10" class="btn btn-filter {% if top == '10' %}active{% endif %}">Top 10</a>
+      <a href="?top=20" class="btn btn-filter {% if top == '20' %}active{% endif %}">Top 20</a>
+      <a href="?top=30" class="btn btn-filter {% if top == '30' %}active{% endif %}">Top 30</a>
+      <a href="?top=all" class="btn btn-filter {% if top == 'all' %}active{% endif %}">All</a>
+    </div>
+
+    {% if results %}
+    <div class="table-container">
+      <div class="table-header">
+        <span>Showing <strong>{{ results|length }}</strong> result(s)</span>
+      </div>
+      <table class="data-table results-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Student Name</th>
+            <th>Attempt</th>
+            <th>Total Score</th>
+            <th>Average Score</th>
+            <th>Ratings Received</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in results %}
+          <tr class="{% if r.rank == 1 %}rank-gold{% elif r.rank == 2 %}rank-silver{% elif r.rank == 3 %}rank-bronze{% endif %}">
+            <td class="rank-cell">{{ r.rank }}</td>
+            <td><strong>{{ r.name }}</strong></td>
+            <td>{{ r.attempt_no }}</td>
+            <td>{{ r.total_score }}</td>
+            <td><strong>{{ r.avg_score }} / 10</strong></td>
+            <td>{{ r.ratings_received }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">0</div>
+      <p>No completed presentations yet. Close a presentation to see results here.</p>
+      <a href="{{ url_for('presentation_control') }}" class="btn btn-admin">Go to Presentation Control</a>
+    </div>
+    {% endif %}
+  </main>
+</div>
+</body>
+</html>
