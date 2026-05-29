@@ -9,24 +9,15 @@ const rubricWeights = {
 
 function updateRubricScore() {
   let completed = 0;
-  let weightedTotal = 0;
 
-  Object.entries(rubricWeights).forEach(([field, weight]) => {
+  Object.keys(rubricWeights).forEach(field => {
     const selected = document.querySelector(`input[name="${field}"]:checked`);
     if (selected) {
       completed += 1;
-      weightedTotal += Number(selected.value) * weight;
     }
   });
 
-  const scoreEl = document.getElementById('weightedScore');
   const submitBtn = document.getElementById('submitBtn');
-
-  if (scoreEl) {
-    scoreEl.textContent = completed === Object.keys(rubricWeights).length
-      ? (weightedTotal / 100 * 5).toFixed(2)
-      : '--';
-  }
 
   if (submitBtn) {
     submitBtn.disabled = completed !== Object.keys(rubricWeights).length;
