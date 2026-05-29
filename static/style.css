@@ -110,7 +110,14 @@ a {
 }
 
 .btn-start {
+  background: #2f2f2f;
+  border-color: #2f2f2f;
   font-weight: 600;
+}
+
+.btn-start:hover {
+  background: #242424;
+  border-color: #242424;
 }
 
 .btn-close-rating {
