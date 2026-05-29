@@ -457,9 +457,7 @@ def submit_rating():
     )
     conn.commit()
     conn.close()
-    return render_template('student_waiting.html',
-                           message='Your rating has been submitted. Please wait for the next presenter.',
-                           user_name=session.get('user_name'))
+    return redirect(url_for('student_waiting', submitted='1'))
 
 @app.route('/student_waiting')
 def student_waiting():
@@ -467,8 +465,11 @@ def student_waiting():
         return redirect(url_for('student_login'))
     if session.get('role') == 'admin':
         return redirect(url_for('admin_dashboard'))
+    message = 'Please wait for the next presenter.'
+    if request.args.get('submitted') == '1':
+        message = 'Your rating has been submitted. Please wait for the next presenter.'
     return render_template('student_waiting.html',
-                           message='Please wait for the next presenter.',
+                           message=message,
                            user_name=session.get('user_name'))
 
 if __name__ == '__main__':
